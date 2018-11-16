@@ -34,6 +34,7 @@ import logging
 import threading
 import numpy as np
 import time
+import regex as re
 
 # local import
 from keithley2600.keithley_doc import CONSTANTS, FUNCTIONS, PROPERTIES, CLASSES, PROPERTY_LISTS
@@ -421,7 +422,7 @@ class Keithley2600Base(MagicClass):
         """
         Writes text to Keithley. Input must be a string.
         """
-        for i in re.split(r"(?<=,)", value):
+        for i in re.split(r"(?<=,)", value, flags=re.VERSION1):
             logger.debug(i)
 
             if self.connection:
