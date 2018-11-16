@@ -421,12 +421,13 @@ class Keithley2600Base(MagicClass):
         """
         Writes text to Keithley. Input must be a string.
         """
-        logger.debug(value)
+        for i in re.split(r"(?<=,)", value):
+            logger.debug(i)
 
-        if self.connection:
-            self.connection.write(value)
-        else:
-            raise KeithleyIOError('No connection to keithley present. Try to call connect().')
+            if self.connection:
+                self.connection.write(i)
+            else:
+                raise KeithleyIOError('No connection to keithley present. Try to call connect().')
 
     def _query(self, value):
         """
