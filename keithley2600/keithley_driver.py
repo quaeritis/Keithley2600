@@ -472,6 +472,13 @@ class Keithley2600Base(MagicClass):
 
         return value
 
+    def _create_long_list(self, name, list):
+        self._write('%s = {}' % name)
+        i = 1
+        for val in list:
+            self._write('%s[%s] = %s' % (name, i, val))
+            i += 1
+
 
 class Keithley2600(Keithley2600Base):
     """Keithley2600 driver with high level functionality
@@ -675,7 +682,12 @@ class Keithley2600(Keithley2600Base):
         if np.all(diffs == diffs[0]):  # check if stepsize is constant
             smu.trigger.source.linearv(smu_sweeplist[0], smu_sweeplist[-1], len(smu_sweeplist))
         else:
-            smu.trigger.source.listv(smu_sweeplist)
+            if "GPIB" in self.visa_address:
+                self._create_long_list('tmp_list', smu_sweeplist)
+                self.smuX.trigger.source.listv('tmp_list')
+            else:
+                smu.trigger.source.listv(smu_sweeplist)
+
 
         smu.trigger.source.action = smu.ENABLE
 
@@ -871,13 +883,21 @@ class Keithley2600(Keithley2600Base):
         if np.all(diffs1 == diffs1[0]):  # check if stepsize is constant
             smu1.trigger.source.linearv(smu1_sweeplist[0], smu1_sweeplist[-1], len(smu1_sweeplist))
         else:
-            smu1.trigger.source.listv(smu1_sweeplist)
+            if "GPIB" in self.visa_address:
+                self._create_long_list('tmp_list', smu1_sweeplist)
+                self.smuX.trigger.source.listv('tmp_list')
+            else:
+                smu1.trigger.source.listv(smu1_sweeplist)
 
         diffs2 = np.diff(smu2_sweeplist)
         if np.all(diffs2 == diffs2[0]):  # check if stepsize is constant
             smu2.trigger.source.linearv(smu2_sweeplist[0], smu2_sweeplist[-1], len(smu2_sweeplist))
         else:
-            smu2.trigger.source.listv(smu2_sweeplist)
+            if "GPIB" in self.visa_address:
+                self._create_long_list('tmp_list', smu2_sweeplist)
+                self.smuX.trigger.source.listv('tmp_list')
+            else:
+                smu2.trigger.source.listv(smu2_sweeplist)
 
         smu1.trigger.source.action = smu1.ENABLE
         smu2.trigger.source.action = smu2.ENABLE
